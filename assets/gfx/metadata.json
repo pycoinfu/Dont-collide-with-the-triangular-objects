@@ -1,0 +1,17 @@
+{
+	"bg.png": {
+		"sprite_sheet": null,
+		"convert_alpha": false,
+		"states": ["level"]
+	},
+	"side_rect_down.png": {
+		"sprite_sheet": null,
+		"convert_alpha": false,
+		"states": ["level"]
+	},
+	"spike_left.png": {
+		"sprite_sheet": null,
+		"convert_alpha": true,
+		"states": ["level"]
+	}
+}
