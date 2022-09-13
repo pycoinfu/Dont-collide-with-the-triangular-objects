@@ -7,6 +7,7 @@ from src._types import Events
 from src.load import load_assets
 from src.player import Player
 from src.spike import Spike
+from src.enums import GameStates
 
 pygame.font.init()
 
@@ -17,16 +18,23 @@ class WorldInitStage:
         self.screen_rect = pygame.Rect(0, 0, *screen_size)
         self.score = -1
 
+        self.next_state = None
+
         self.assets = load_assets("level")
 
         spike_image = self.assets["spike_left"]
         side_rect_image = self.assets["side_rect_down"]
         # rotating some of the assets
-        self.assets = self.assets | {
-            "spike_right": pygame.transform.flip(spike_image, True, False),
-            "spike_up": pygame.transform.rotate(spike_image, 90),
-            "spike_down": pygame.transform.rotate(spike_image, 270),
-            "side_rect_up": pygame.transform.flip(side_rect_image, False, True),
+        # (merging two dictionaries: loaded assets and new rotates assets)
+        # using the unpacking operator (**) for backwards compatibility
+        self.assets = {
+            **self.assets,
+            **{
+                "spike_right": pygame.transform.flip(spike_image, True, False),
+                "spike_up": pygame.transform.rotate(spike_image, 90),
+                "spike_down": pygame.transform.rotate(spike_image, 270),
+                "side_rect_up": pygame.transform.flip(side_rect_image, False, True),
+            }
         }
         self.spike_size = self.assets["spike_left"].get_size()
 
@@ -36,7 +44,7 @@ class BackgroundStage(WorldInitStage):
         super().__init__(screen_size)
 
         # the rects at the top and bottom of the screen
-        side_rect_height = self.spike_size[1] * 1.5
+        side_rect_height = self.assets["side_rect_down"].get_height()
         self.side_rects = (
             pygame.Rect(0, 0, screen_size[0], side_rect_height),
             pygame.Rect(
@@ -168,8 +176,7 @@ class SpikeStage(PlayerStage):
             spike.update(events)
             if spike.rect.colliderect(self.player.rect):
                 if spike.get_collision(self.player.mask, self.player.rect) is not None:
-                    __import__("os").system("py main.py")
-                    raise SystemExit
+                    self.next_state = GameStates.MENU
 
     def draw(self, screen: pygame.Surface):
         super().draw(screen)
