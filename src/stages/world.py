@@ -34,7 +34,7 @@ class WorldInitStage:
                 "spike_up": pygame.transform.rotate(spike_image, 90),
                 "spike_down": pygame.transform.rotate(spike_image, 270),
                 "side_rect_up": pygame.transform.flip(side_rect_image, False, True),
-            }
+            },
         }
         self.spike_size = self.assets["spike_left"].get_size()
 
@@ -62,9 +62,7 @@ class BackgroundStage(WorldInitStage):
 class UIStage(BackgroundStage):
     def __init__(self, screen_size: Tuple[int]):
         super().__init__(screen_size)
-        self.score_font = pygame.font.Font(
-            "assets/gfx/Montserrat-ExtraLight.ttf", 186
-        )
+        self.score_font = pygame.font.Font("assets/gfx/Montserrat-ExtraLight.ttf", 186)
 
     def draw(self, screen: pygame.Surface):
         super().draw(screen)

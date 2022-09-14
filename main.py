@@ -44,9 +44,8 @@ class Game:
                     self.state = self.states[self.state.next_state](self.screen.copy())
 
             pygame.display.flip()
-            pygame.display.set_caption(
-                f"FPS: {self.clock.get_fps():.0f}"
-            )
+            pygame.display.set_caption(f"FPS: {self.clock.get_fps():.0f}")
+
 
 if __name__ == "__main__":
     Game().run()
