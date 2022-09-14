@@ -13,10 +13,10 @@ class Player:
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect(center=center)
         self.pos = pygame.Vector2(self.rect.topleft)
-        self.speed = 3
-        self.vel = pygame.Vector2(self.speed)
 
+        self.speed = 3
         self.jump_height = -5
+        self.vel = pygame.Vector2(self.speed, self.jump_height)
         self.gravity = 0.125
 
     def render_input(self, events: Events):

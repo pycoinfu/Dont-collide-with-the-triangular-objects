@@ -1,6 +1,7 @@
 import pygame
 
-from src.world import World
+from src.stages.world import World
+from src.stages.menu import Menu
 from src.enums import GameStates
 
 
@@ -13,10 +14,10 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.states = {
-            GameStates.GAME: World((WIDTH, HEIGHT)),
-            GameStates.MENU: ...,
+            GameStates.GAME: World,
+            GameStates.MENU: Menu,
         }
-        self.state = self.states[GameStates.GAME]
+        self.state = self.states[GameStates.MENU](self.screen.copy())
 
     def run(self):
         while True:
@@ -33,17 +34,18 @@ class Game:
                 "keys": pygame.key.get_pressed(),
             }
 
-            self.screen.fill("black")
-
             self.state.update(events)
             self.state.draw(self.screen)
 
             if self.state.next_state is not None:
-                self.state = self.states[self.state.next_state]
+                if self.state.next_state == GameStates.GAME:
+                    self.state = self.states[self.state.next_state]((WIDTH, HEIGHT))
+                else:
+                    self.state = self.states[self.state.next_state](self.screen.copy())
 
             pygame.display.flip()
             pygame.display.set_caption(
-                f"Don't collide with the triangular objects | FPS: {self.clock.get_fps():.0f}"
+                f"FPS: {self.clock.get_fps():.0f}"
             )
 
 if __name__ == "__main__":

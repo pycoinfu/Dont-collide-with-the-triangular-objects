@@ -32,6 +32,7 @@ class Spike:
     def update(self, events: Events):
         if self.move_to_pos:
             self.pos.move_towards_ip(self.final_pos, self.SPEED * events["delta_time"])
+            self.SPEED /= 1.075
             if self.pos.x != self.final_pos.x:
                 self.rect.topleft = self.pos
 

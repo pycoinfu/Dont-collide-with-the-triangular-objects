@@ -62,8 +62,8 @@ class BackgroundStage(WorldInitStage):
 class UIStage(BackgroundStage):
     def __init__(self, screen_size: Tuple[int]):
         super().__init__(screen_size)
-        self.score_font = pygame.font.SysFont(
-            "assets/gfx/Montserrat-ExtraLight.ttf", 196
+        self.score_font = pygame.font.Font(
+            "assets/gfx/Montserrat-ExtraLight.ttf", 186
         )
 
     def draw(self, screen: pygame.Surface):
@@ -122,7 +122,6 @@ class SpikeStage(PlayerStage):
         self.spike_vertical_coordinates = [y for y in range(*spike_vertical_range)]
 
         self.old_player_vel = pygame.Vector2()
-        self.spikes = []
 
     def generate_spikes(self):
         self.spikes = []
@@ -148,7 +147,7 @@ class SpikeStage(PlayerStage):
                 0,
                 self.player.rect.y - self.spike_size[1],
                 self.screen_size[0],
-                self.spike_size[1] * 1.5,
+                self.spike_size[1] * 1.25,
             )
 
             for spike in new_spikes:
@@ -164,7 +163,7 @@ class SpikeStage(PlayerStage):
         super().update(events)
 
         # if the player changed its direction:
-        if self.old_player_vel.x != self.player.vel.x:
+        if int(self.old_player_vel.x) != int(self.player.vel.x):
             self.generate_spikes()
             self.score += 1
             self.player.speed *= 1.01
@@ -172,11 +171,16 @@ class SpikeStage(PlayerStage):
 
         self.old_player_vel = self.player.vel.copy()
 
+        self.next_state = None
         for spike in self.spikes + self.top_static_spikes + self.bottom_static_spikes:
             spike.update(events)
+
             if spike.rect.colliderect(self.player.rect):
                 if spike.get_collision(self.player.mask, self.player.rect) is not None:
                     self.next_state = GameStates.MENU
+                    self.player = Player(self.screen_rect.center)
+                    self.score = 0
+                    self.spikes = []
 
     def draw(self, screen: pygame.Surface):
         super().draw(screen)
