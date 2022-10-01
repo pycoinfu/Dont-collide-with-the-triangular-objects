@@ -2,6 +2,7 @@ import pygame
 
 from src.stages.world import World
 from src.stages.menu import Menu
+from src.load import load_assets
 from src.enums import GameStates
 
 
@@ -18,6 +19,7 @@ class Game:
             GameStates.MENU: Menu,
         }
         self.state = self.states[GameStates.MENU](self.screen.copy())
+        self.assets = load_assets("level")
 
     def run(self):
         while True:
@@ -39,7 +41,7 @@ class Game:
 
             if self.state.next_state is not None:
                 if self.state.next_state == GameStates.GAME:
-                    self.state = self.states[self.state.next_state]((WIDTH, HEIGHT))
+                    self.state = self.states[self.state.next_state](self.assets)
                 else:
                     self.state = self.states[self.state.next_state](self.screen.copy())
 

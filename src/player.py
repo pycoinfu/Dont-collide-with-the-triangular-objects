@@ -3,12 +3,12 @@ from typing import Tuple
 import pygame
 
 from src._types import Events, Position
+from src.enums import PlayerStates
 
 
 class Player:
-    def __init__(self, center: Position):
-        self.image = pygame.Surface((18, 18))
-        self.image.fill((6, 6, 8))
+    def __init__(self, center: Position, game_assets: dict):
+        self.image = game_assets["player idle"]
 
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect(center=center)
@@ -16,7 +16,7 @@ class Player:
 
         self.speed = 3
         self.jump_height = -5
-        self.vel = pygame.Vector2(self.speed, self.jump_height)
+        self.vel = pygame.Vector2(self.speed, self.jump_height / 1.5)
         self.gravity = 0.125
 
     def render_input(self, events: Events):

@@ -1,5 +1,6 @@
 import random
 from typing import Tuple
+import json
 
 import pygame
 
@@ -13,14 +14,14 @@ pygame.font.init()
 
 
 class WorldInitStage:
-    def __init__(self, screen_size: Tuple[int]):
-        self.screen_size = screen_size
-        self.screen_rect = pygame.Rect(0, 0, *screen_size)
+    def __init__(self, assets: dict):
+        self.screen_size = assets["bg"].get_size()
+        self.screen_rect = pygame.Rect(0, 0, *self.screen_size)
         self.score = -1
 
         self.next_state = None
 
-        self.assets = load_assets("level")
+        self.assets = assets
 
         spike_image = self.assets["spike_left"]
         side_rect_image = self.assets["side_rect_down"]
@@ -40,15 +41,15 @@ class WorldInitStage:
 
 
 class BackgroundStage(WorldInitStage):
-    def __init__(self, screen_size: Tuple[int]):
-        super().__init__(screen_size)
+    def __init__(self, assets: dict):
+        super().__init__(assets)
 
         # the rects at the top and bottom of the screen
         side_rect_height = self.assets["side_rect_down"].get_height()
         self.side_rects = (
-            pygame.Rect(0, 0, screen_size[0], side_rect_height),
+            pygame.Rect(0, 0, self.screen_size[0], side_rect_height),
             pygame.Rect(
-                0, screen_size[1] - side_rect_height, screen_size[0], side_rect_height
+                0, self.screen_size[1] - side_rect_height, self.screen_size[0], side_rect_height
             ),
         )
 
@@ -60,8 +61,8 @@ class BackgroundStage(WorldInitStage):
 
 
 class UIStage(BackgroundStage):
-    def __init__(self, screen_size: Tuple[int]):
-        super().__init__(screen_size)
+    def __init__(self, assets: dict):
+        super().__init__(assets)
         self.score_font = pygame.font.Font("assets/gfx/Montserrat-ExtraLight.ttf", 186)
 
     def draw(self, screen: pygame.Surface):
@@ -73,10 +74,10 @@ class UIStage(BackgroundStage):
 
 
 class PlayerStage(UIStage):
-    def __init__(self, screen_size: Tuple[int]):
-        super().__init__(screen_size)
+    def __init__(self, assets: dict):
+        super().__init__(assets)
 
-        self.player = Player(self.screen_rect.center)
+        self.player = Player(self.screen_rect.center, self.assets)
 
     def update(self, events: Events):
         self.player.update(events, self.screen_size)
@@ -90,8 +91,8 @@ class PlayerStage(UIStage):
 class SpikeStage(PlayerStage):
     SPIKE_AMOUNT = 10
 
-    def __init__(self, screen_size: Tuple[int]):
-        super().__init__(screen_size)
+    def __init__(self, assets: dict):
+        super().__init__(assets)
 
         static_spike_amount = self.screen_size[0] // self.spike_size[0]
 
@@ -143,9 +144,9 @@ class SpikeStage(PlayerStage):
             # the area around the player that spikes shouldn't spawn in
             player_area = pygame.Rect(
                 0,
-                self.player.rect.y - self.spike_size[1],
+                self.player.rect.centery,
                 self.screen_size[0],
-                self.spike_size[1] * 1.25,
+                self.spike_size[1] * 1.5,
             )
 
             for spike in new_spikes:
@@ -175,10 +176,19 @@ class SpikeStage(PlayerStage):
 
             if spike.rect.colliderect(self.player.rect):
                 if spike.get_collision(self.player.mask, self.player.rect) is not None:
+                    self.save()
                     self.next_state = GameStates.MENU
-                    self.player = Player(self.screen_rect.center)
-                    self.score = 0
-                    self.spikes = []
+
+    def save(self):
+        with open("assets/save.json", "r") as f:
+            data = json.load(f)
+
+        if self.score > data["high_score"]:
+            data["high_score"] = self.score
+        data["sum_score"] += self.score
+
+        with open("assets/save.json", "w") as f:
+            json.dump(data, f)
 
     def draw(self, screen: pygame.Surface):
         super().draw(screen)

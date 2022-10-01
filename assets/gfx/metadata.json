@@ -13,5 +13,10 @@
 		"sprite_sheet": null,
 		"convert_alpha": true,
 		"states": ["level"]
+	},
+	"player idle.png": {
+		"sprite_sheet": null,
+		"convert_alpha": true,
+		"states": ["level"]
 	}
 }
